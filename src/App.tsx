@@ -4,6 +4,7 @@ import { Dispatch } from './types/dispatch';
 import { fetchDispatches, respondDispatch } from './data/api';
 import { DispatchList } from './components/DispatchList';
 import { DispatchDetail } from './components/DispatchDetail';
+import DebugOverlay from './components/DebugOverlay';
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -44,7 +45,7 @@ export default function App() {
   }, []);
 
   if (!ready || loading) {
-    return <div style={{ padding: 40, textAlign: 'center', color: '#9CA3AF' }}>載入中…</div>;
+    return <><DebugOverlay /><div style={{ padding: 40, textAlign: 'center', color: '#9CA3AF' }}>載入中…</div></>;
   }
 
   const handleAccept = async () => {
@@ -72,11 +73,12 @@ export default function App() {
   };
 
   if (selected) {
-    return <DispatchDetail dispatch={selected} onAccept={handleAccept} onDecline={handleDecline} onBack={() => setSelected(null)} />;
+    return <><DebugOverlay /><DispatchDetail dispatch={selected} onAccept={handleAccept} onDecline={handleDecline} onBack={() => setSelected(null)} /></>;
   }
 
   return (
     <>
+      <DebugOverlay />
       {lineUserId ? (
         <div style={{ background: '#DBEAFE', color: '#1E40AF', padding: '10px 16px', fontSize: 12, wordBreak: 'break-all' }}>
           <div style={{ fontWeight: 600, marginBottom: 4 }}>LINE userId:</div>
