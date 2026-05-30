@@ -1,4 +1,4 @@
-export const LIFF_ID = import.meta.env.VITE_LIFF_ID ?? '2009128968-3VXsvrAB';
+export const LIFF_ID = import.meta.env.VITE_LIFF_ID ?? '2009128968-CvqxUVB8';
 
 export const SHIFT_TYPE_STYLE: Record<string, { bg: string; color: string }> = {
   '醫24': { bg: '#FFE4E1', color: '#C0392B' },
