@@ -1,5 +1,5 @@
 import liff from "@line/liff";
-const LIFF_ID = import.meta.env.VITE_LIFF_ID ?? "2009128968-3VXsvrAB";
+const LIFF_ID = import.meta.env.VITE_LIFF_ID ?? "2009128968-CvqxUVB8";
 let cachedUserId: string | null = null;
 let ready = false;
 
