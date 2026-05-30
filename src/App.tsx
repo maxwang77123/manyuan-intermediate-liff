@@ -29,23 +29,27 @@ export default function App() {
   };
 
   useEffect(() => {
-    initLiff().then(() => {
-      if (!isLiffLoggedIn()) {
-        if (liff.isInClient()) {
-          loginWithLiff();
+    initLiff()
+      .then(() => {
+        if (!isLiffLoggedIn()) {
+          if (liff.isInClient()) {
+            loginWithLiff();
+            return;
+          }
+          setReady(true);
+          loadDispatches(null);
           return;
         }
-        // dev mode: not inside LINE client, proceed with null uid
+        const uid = getLineUserId();
+        setLineUserId(uid);
+        setReady(true);
+        loadDispatches(uid);
+      })
+      .catch((err) => {
+        console.error("[App] initLiff error", err);
         setReady(true);
         loadDispatches(null);
-        return;
-      }
-      const uid = getLineUserId();
-      setLineUserId(uid);
-      setDisplayName(getLineDisplayName());
-      setReady(true);
-      loadDispatches(uid);
-    });
+      });
   }, []);
 
   if (!ready || loading) {
