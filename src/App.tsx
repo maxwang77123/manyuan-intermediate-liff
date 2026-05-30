@@ -16,13 +16,15 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
 
   const loadDispatches = async (uid: string | null) => {
+    console.log("loadDispatches start uid=" + uid);
     setLoading(true);
     setError(null);
     try {
       const data = await fetchDispatches(uid);
+      console.log("loadDispatches done count=" + data.length);
       setDispatches(data);
     } catch (err) {
-      console.error(err);
+      console.error("loadDispatches error", err);
       setError('載入派案失敗, 請稍後再試');
     } finally {
       setLoading(false);
