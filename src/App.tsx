@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { initLiff, getLineUserId } from './lib/liff';
+import { initLiff, getLineUserId, getLineDisplayName } from './lib/liff';
 import { Dispatch } from './types/dispatch';
 import { fetchDispatches, respondDispatch, getCarerPersonId } from './data/api';
 import { DispatchList } from './components/DispatchList';
@@ -8,17 +8,18 @@ import { DispatchDetail } from './components/DispatchDetail';
 export default function App() {
   const [ready, setReady] = useState(false);
   const [lineUserId, setLineUserId] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const [selected, setSelected] = useState<Dispatch | null>(null);
   const [dispatches, setDispatches] = useState<Dispatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadDispatches = async () => {
+  const loadDispatches = async (lineUid: string | null) => {
     setLoading(true);
     setError(null);
     try {
-      const carer = getCarerPersonId();
-      const data = await fetchDispatches(carer);
+      // Stage 3.5: 優先用 lineUserId 查; 拿不到 (本地開發) 才 fallback 寫死 person_id
+      const data = await fetchDispatches(lineUid);
       setDispatches(data);
     } catch (err) {
       console.error(err);
@@ -30,9 +31,11 @@ export default function App() {
 
   useEffect(() => {
     initLiff().then(() => {
-      setLineUserId(getLineUserId());
+      const uid = getLineUserId();
+      setLineUserId(uid);
+      setDisplayName(getLineDisplayName());
       setReady(true);
-      loadDispatches();
+      loadDispatches(uid);
     });
   }, []);
 
@@ -70,8 +73,17 @@ export default function App() {
 
   return (
     <>
-      {!lineUserId && <div style={{ background: '#FEF3C7', color: '#92400E', padding: '8px 16px', fontSize: 13 }}>開發模式 (LIFF 未登入, B3 測試 person_id)</div>}
-      {error && <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '8px 16px', fontSize: 13 }}>{error} <button onClick={loadDispatches} style={{ marginLeft: 8, textDecoration: 'underline', background: 'none', border: 'none', color: '#991B1B', cursor: 'pointer' }}>重試</button></div>}
+      {/* Stage 3.5 DEBUG: 顯示 LINE userId 讓王至謙複製給 Claude. 綁定完成後移除 */}
+      {lineUserId ? (
+        <div style={{ background: '#DBEAFE', color: '#1E40AF', padding: '10px 16px', fontSize: 12, wordBreak: 'break-all' }}>
+          <div style={{ fontWeight: 600, marginBottom: 4 }}>🔑 你的 LINE userId (複製給 Claude 綁定):</div>
+          <div style={{ fontFamily: 'monospace', userSelect: 'all', background: '#fff', padding: 6, borderRadius: 4 }}>{lineUserId}</div>
+          {displayName && <div style={{ marginTop: 4 }}>顯示名稱: {displayName}</div>}
+        </div>
+      ) : (
+        <div style={{ background: '#FEF3C7', color: '#92400E', padding: '8px 16px', fontSize: 13 }}>開發模式 (LIFF 未登入, B3 測試 person_id)</div>
+      )}
+      {error && <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '8px 16px', fontSize: 13 }}>{error} <button onClick={() => loadDispatches(lineUserId)} style={{ marginLeft: 8, textDecoration: 'underline', background: 'none', border: 'none', color: '#991B1B', cursor: 'pointer' }}>重試</button></div>}
       <DispatchList dispatches={dispatches} onSelect={setSelected} />
     </>
   );
