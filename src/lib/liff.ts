@@ -1,5 +1,4 @@
-// liff is loaded globally from CDN script in index.html
-declare const liff: any;
+import liff from "@line/liff";
 
 const LIFF_ID = import.meta.env.VITE_LIFF_ID ?? "2009128968-CvqxUVB8";
 let cachedUserId: string | null = null;
@@ -14,16 +13,19 @@ export async function initLiff(): Promise<void> {
   try {
     const inClient = liff.isInClient();
     const loggedIn = liff.isLoggedIn();
+    console.log("liff inClient=" + inClient + " loggedIn=" + loggedIn);
     if (!loggedIn) {
       if (inClient) {
+        console.log("calling liff.login()");
         liff.login();
       }
       return;
     }
     const profile = await liff.getProfile();
     cachedUserId = profile.userId;
+    console.log("got userId=" + cachedUserId);
   } catch (err) {
-    console.warn("liff post-init error:", err);
+    console.warn("liff post-init error:", String(err));
   }
 }
 
