@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { initLiff, isLiffLoggedIn, loginWithLiff, getLineUserId, getLineDisplayName, liff } from './lib/liff';
+import { initLiff, getLineUserId } from './lib/liff';
 import { Dispatch } from './types/dispatch';
 import { fetchDispatches, respondDispatch } from './data/api';
 import { DispatchList } from './components/DispatchList';
@@ -8,7 +8,7 @@ import { DispatchDetail } from './components/DispatchDetail';
 export default function App() {
   const [ready, setReady] = useState(false);
   const [lineUserId, setLineUserId] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState<string | null>(null);
+
   const [selected, setSelected] = useState<Dispatch | null>(null);
   const [dispatches, setDispatches] = useState<Dispatch[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,15 +31,6 @@ export default function App() {
   useEffect(() => {
     initLiff()
       .then(() => {
-        if (!isLiffLoggedIn()) {
-          if (liff.isInClient()) {
-            loginWithLiff();
-            return;
-          }
-          setReady(true);
-          loadDispatches(null);
-          return;
-        }
         const uid = getLineUserId();
         setLineUserId(uid);
         setReady(true);
@@ -90,7 +81,6 @@ export default function App() {
         <div style={{ background: '#DBEAFE', color: '#1E40AF', padding: '10px 16px', fontSize: 12, wordBreak: 'break-all' }}>
           <div style={{ fontWeight: 600, marginBottom: 4 }}>LINE userId:</div>
           <div style={{ fontFamily: 'monospace', userSelect: 'all', background: '#fff', padding: 6, borderRadius: 4 }}>{lineUserId}</div>
-          {displayName && <div style={{ marginTop: 4 }}>顯示名稱: {displayName}</div>}
         </div>
       ) : (
         <div style={{ background: '#FEF3C7', color: '#92400E', padding: '8px 16px', fontSize: 13 }}>開發模式 (LIFF 未登入, 使用測試帳號)</div>

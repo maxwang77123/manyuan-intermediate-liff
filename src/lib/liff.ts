@@ -1,38 +1,28 @@
-import liff from '@line/liff';
-import { LIFF_ID } from '../data/constants';
-
+import liff from "@line/liff";
+const LIFF_ID = import.meta.env.VITE_LIFF_ID ?? "2009128968-3VXsvrAB";
 let cachedUserId: string | null = null;
-let cachedDisplayName: string | null = null;
+let ready = false;
 
 export async function initLiff(): Promise<void> {
   try {
     await liff.init({ liffId: LIFF_ID });
-    console.log('[liff] initialized', { isInClient: liff.isInClient(), isLoggedIn: liff.isLoggedIn() });
-    if (liff.isLoggedIn()) {
-      const profile = await liff.getProfile();
-      cachedUserId = profile.userId;
-      cachedDisplayName = profile.displayName;
-      console.log('[liff] profile', { userId: cachedUserId, displayName: cachedDisplayName });
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return; // redirect happens, page unloads, this is correct
     }
+    const profile = await liff.getProfile();
+    cachedUserId = profile.userId;
+    ready = true;
   } catch (err) {
-    console.warn('[liff] init failed (dev mode)', err);
+    console.warn("LIFF init failed:", err);
+    ready = true; // dev mode
   }
-}
-
-export function isLiffLoggedIn(): boolean {
-  return liff.isLoggedIn();
-}
-
-export function loginWithLiff(): void {
-  liff.login();
 }
 
 export function getLineUserId(): string | null {
   return cachedUserId;
 }
 
-export function getLineDisplayName(): string | null {
-  return cachedDisplayName;
+export function isLiffReady(): boolean {
+  return ready;
 }
-
-export { liff };
