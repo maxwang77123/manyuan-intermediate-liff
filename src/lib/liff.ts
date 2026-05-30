@@ -8,17 +8,23 @@ export async function initLiff(): Promise<void> {
   try {
     await liff.init({ liffId: LIFF_ID });
     console.log('[liff] initialized', { isInClient: liff.isInClient(), isLoggedIn: liff.isLoggedIn() });
-    if (!liff.isLoggedIn()) {
-      liff.login();
-      return;
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      cachedUserId = profile.userId;
+      cachedDisplayName = profile.displayName;
+      console.log('[liff] profile', { userId: cachedUserId, displayName: cachedDisplayName });
     }
-    const profile = await liff.getProfile();
-    cachedUserId = profile.userId;
-    cachedDisplayName = profile.displayName;
-    console.log('[liff] profile', { userId: cachedUserId, displayName: cachedDisplayName });
   } catch (err) {
     console.warn('[liff] init failed (dev mode)', err);
   }
+}
+
+export function isLiffLoggedIn(): boolean {
+  return liff.isLoggedIn();
+}
+
+export function loginWithLiff(): void {
+  liff.login();
 }
 
 export function getLineUserId(): string | null {

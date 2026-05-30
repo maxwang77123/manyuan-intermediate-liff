@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { initLiff, getLineUserId, getLineDisplayName } from './lib/liff';
+import { initLiff, isLiffLoggedIn, loginWithLiff, getLineUserId, getLineDisplayName, liff } from './lib/liff';
 import { Dispatch } from './types/dispatch';
 import { fetchDispatches, respondDispatch } from './data/api';
 import { DispatchList } from './components/DispatchList';
@@ -30,6 +30,16 @@ export default function App() {
 
   useEffect(() => {
     initLiff().then(() => {
+      if (!isLiffLoggedIn()) {
+        if (liff.isInClient()) {
+          loginWithLiff();
+          return;
+        }
+        // dev mode: not inside LINE client, proceed with null uid
+        setReady(true);
+        loadDispatches(null);
+        return;
+      }
       const uid = getLineUserId();
       setLineUserId(uid);
       setDisplayName(getLineDisplayName());
