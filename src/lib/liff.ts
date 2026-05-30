@@ -1,4 +1,6 @@
-import liff from "@line/liff";
+// liff is loaded globally from CDN script in index.html
+declare const liff: any;
+
 const LIFF_ID = import.meta.env.VITE_LIFF_ID ?? "2009128968-CvqxUVB8";
 let cachedUserId: string | null = null;
 
@@ -7,14 +9,14 @@ export async function initLiff(): Promise<void> {
     await liff.init({ liffId: LIFF_ID });
   } catch (err) {
     console.warn("liff.init() failed:", err);
-    return; // dev mode fallback
+    return;
   }
   try {
     const inClient = liff.isInClient();
     const loggedIn = liff.isLoggedIn();
     if (!loggedIn) {
       if (inClient) {
-        liff.login(); // redirect, page unloads
+        liff.login();
       }
       return;
     }
